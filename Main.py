@@ -1380,6 +1380,8 @@ def _guard(handler):
     wrapper.__name__ = handler.__name__
     return wrapper
 
+_guard_any = _guard
+
 def _bots() -> List[Any]:
     return [b for b in all_bot_instances if b is not None]
 
@@ -2249,17 +2251,6 @@ async def cmd_stopmgcnc(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         )
     else:
         await _reply(msg, "⚡ 𝐍𝐨 𝐚𝐜𝐭𝐢𝐯𝐞 𝐌𝐮𝐥𝐭𝐢-𝐆𝐂 𝐍𝐂.")
-
-@_guard
-async def cmd_mgcstatus(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    msg = update.message or update.edited_message
-    if not msg:
-        return
-    running = bool(_mgcnc_task and not _mgcnc_task.done())
-    await _reply(msg,
-        f"╔══════════════════════════╗\n"
-        f"  🌐 𝐌𝐔𝐋𝐓𝐈
-, _mgc_surge_factory(txt), f"⚡ SURGE {txt}")
 
 @_guard
 async def cmd_mgccustom(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
@@ -4606,10 +4597,11 @@ CMD_MAP: Dict[str, Any] = {
     "stop":              cmd_stop,
     "nc":                cmd_nc,
     "snc":               cmd_snc,
-    "anshgod":           cmd_anshgod,
-    "sasukegod":         cmd_sasukegod,
-    "sasuke1":           cmd_sasuke1,
-    "chud":              cmd_chud,
+    # NOTE: handlers below were referenced but never defined; disabled to keep module importable.
+    # "anshgod":           cmd_anshgod,
+    # "sasukegod":         cmd_sasukegod,
+    # "sasuke1":           cmd_sasuke1,
+    # "chud":              cmd_chud,
     "status":            cmd_status,
     "uptime":            cmd_uptime,
     "ping":              cmd_ping,
@@ -4621,11 +4613,11 @@ CMD_MAP: Dict[str, Any] = {
     "cursivenc":         cmd_cursivenc,
     "italicnc":          cmd_italicnc,
     "wavenc":            cmd_wavenc,
-    "sasukencs":         cmd_sasukencs,
+    # "sasukencs":         cmd_sasukencs,
     "randomcod":         cmd_randomcod,
     "godcod":            cmd_godcod,
-    "aizennc":           cmd_aizennc,
-    "villainnc":         cmd_villainnc,
+    # "aizennc":           cmd_aizennc,
+    # "villainnc":         cmd_villainnc,
     "phantom":           cmd_phantom,
     "testament":         cmd_testament,
     "shadow":            cmd_shadow,
@@ -4746,7 +4738,7 @@ CMD_MAP: Dict[str, Any] = {
     "cleartemplates":    cmd_cleartemplates,
     "mgcnc":             cmd_mgcnc,
     "mgc":               cmd_mgcnc,
-    "mgcchud":           cmd_mgcchud,
+    # "mgcchud":           cmd_mgcchud,
     "mgcbold":           cmd_mgcbold,
     "mgcfire":           cmd_mgcfire,
     "mgcwar":            cmd_mgcwar,
