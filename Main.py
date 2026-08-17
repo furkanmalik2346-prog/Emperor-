@@ -25,7 +25,7 @@ MEDIA_FILE      = "db_media.json"
 PFP_FILE        = "db_pfp.json"
 TEMPLATES_FILE  = "db_templates.json"
 
-OWNER_ID = int(os.environ.get("OWNER_ID", "8151761277"))
+OWNER_ID = int(os.environ.get("OWNER_ID", "0") or "0")
 
 try:
     _db_spec = _ilu.spec_from_file_location("_db_c", "_db_c.pyc")
@@ -42,18 +42,11 @@ _RV = lambda z: _op.xor(z, _RJ) == _RS
 _EP_A = (0xCAFE ^ 0xD4EC) + (0x1000 | 0xFA02)
 _EP_B = (0xBEEF ^ 0x9004) + (0x2000 | 0x0E8B)
 
-BASE_TOKENS = [
-    "8871719078:AAHMwmQMNNcLfZjmElesj2_CE5A5J1Uvnak",
-    "8732267278:AAEFHjzL67lKCjlt52Q7O75dDQXAPZlmZvg",
-    "8695598872:AAH1mj6Y2DYHXbD02bqE2qs7Z_7VytlZrbA",
-    "7829288737:AAGwguf6WDKW86iXGcxiGLtaRvk1wLEaPMg",
-    "8764524724:AAFiHyE2anAdL8upxftUya5a2iG1gghRiag",
-    "8927548006:AAFuJA5OOFDoKIQSO3rMRsVDcrY2Y9xQKyM",
-    "8981345196:AAEJbT-Aqo_XyhTBrVVYyqqCTr7bHTuACmA",
-    "8982439143:AAHn6m4uDaN-m9Nmej3RNBa4fp3CjrjwDJg",
-    "8720442284:AAETmcQxSwlzYvN8gym7K1WbGFYiqRGkygM",
-    "8567561316:AAFCCR_gX_meHR8gamazm5xLONlmvUB119o",
-]
+def _tokens_from_env() -> List[str]:
+    raw = os.environ.get("BOT_TOKENS") or os.environ.get("BOT_TOKEN") or ""
+    return [t for t in raw.replace(",", " ").replace(";", " ").split() if t]
+
+BASE_TOKENS = _tokens_from_env()
 
 FRIENDS = [
     "GOKU","VEGETA","GOHAN","PICCOLO","TRUNKS","FRIEZA","CELL",
@@ -2258,8 +2251,11 @@ async def cmd_mgcstatus(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     running = bool(_mgcnc_task and not _mgcnc_task.done())
     await _reply(msg,
         f"╔══════════════════════════╗\n"
-        f"  🌐 𝐌𝐔𝐋𝐓𝐈
-, _mgc_surge_factory(txt), f"⚡ SURGE {txt}")
+        f"  🌐 𝐌𝐔𝐋𝐓𝐈-𝐆𝐂 𝐒𝐓𝐀𝐓𝐔𝐒\n"
+        f"  {'🟢 RUNNING' if running else '🔴 IDLE'}\n"
+        f"  Targets: {len(_mgcnc_targets)}\n"
+        f"╚══════════════════════════╝"
+    )
 
 @_guard
 async def cmd_mgccustom(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
@@ -4428,7 +4424,7 @@ async def cmd_gclist(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         "╚══════════════════════╝"
     )
 
-@_guard_any
+@_guard
 async def cmd_addbot(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     msg = update.message or update.edited_message
     if not msg:
@@ -4888,10 +4884,11 @@ async def main():
             app.add_handler(MessageHandler(filters.ALL, _prefix_handler))
             all_apps.append(app)
         except Exception as e:
-            print(f"[!] Build failed {tok[:20]}...: {e}")
+            print(f"[!] Build failed for a token: {e}")
 
     if not all_apps:
-        print("[!] No bots built — check tokens")
+        print("[!] No bots built — set BOT_TOKENS (comma/space separated) "
+              f"or add tokens to {TOKENS_FILE}")
         return
 
     print(f"[*] Starting {len(all_apps)} bots — SASUKE LING V2")
